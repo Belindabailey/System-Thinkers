@@ -1,0 +1,158 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>The Gel Brain — BioStellar LLC</title>
+<style>
+    * { margin:0; padding:0; box-sizing:border-box; }
+    body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#0a1a2f 0%,#11324a 60%,#0a2230 100%); min-height:100vh; padding:24px; color:#dce7ef; line-height:1.6; }
+    .wrap { max-width:880px; margin:0 auto; }
+    .header { text-align:center; margin-bottom:22px; background:rgba(255,255,255,0.05); padding:24px; border-radius:14px; border:1px solid rgba(120,180,220,0.2); }
+    .header h1 { font-size:28px; margin-bottom:8px; color:#bfe3ff; }
+    .header p { color:#9db8c9; font-size:15px; max-width:680px; margin:0 auto; }
+    h2 { color:#bfe3ff; font-size:20px; margin:26px 0 12px; }
+    h3 { color:#cfe6f5; font-size:16px; margin:18px 0 6px; }
+    .maps { display:grid; grid-template-columns:1fr; gap:14px; }
+    .map { display:block; text-decoration:none; background:rgba(255,255,255,0.05); border:1px solid rgba(120,180,220,0.25); border-radius:12px; padding:18px; transition:.15s; }
+    .map:hover { border-color:rgba(127,214,255,0.6); background:rgba(40,90,120,0.25); transform:translateY(-1px); }
+    .map .t { color:#7fd6ff; font-size:17px; font-weight:600; margin-bottom:4px; }
+    .map .d { color:#9db8c9; font-size:14px; }
+    .map .go { color:#ffd479; font-size:13px; margin-top:8px; display:inline-block; }
+    .card { background:rgba(255,255,255,0.04); border:1px solid rgba(120,180,220,0.18); border-radius:12px; padding:18px; margin-top:14px; }
+    p.lead { color:#9db8c9; font-size:14px; }
+    ol, ul { margin:8px 0 8px 22px; color:#bcd2e0; font-size:14px; }
+    li { margin:4px 0; }
+    .prompt { position:relative; background:rgba(0,0,0,0.32); border:1px solid rgba(120,180,220,0.25); border-radius:10px; padding:14px 14px 14px; margin:10px 0; }
+    .prompt pre { white-space:pre-wrap; word-break:break-word; font-family:Menlo,Consolas,monospace; font-size:12.5px; color:#cfe6f5; }
+    .copy { position:absolute; top:10px; right:10px; background:linear-gradient(135deg,#2a6f9e,#1b4a6e); color:#eaf6ff; border:none; border-radius:7px; padding:5px 10px; font-size:11px; cursor:pointer; }
+    .copy:hover { filter:brightness(1.15); }
+    .axes { font-size:13px; color:#9db8c9; }
+    .axes b { color:#bfe3ff; }
+    .note { font-size:13px; color:#9db8c9; background:rgba(40,90,120,0.18); border-left:3px solid #7fd6ff; padding:10px 12px; border-radius:6px; margin:10px 0; }
+    code { background:rgba(0,0,0,0.3); padding:1px 5px; border-radius:4px; font-size:12.5px; color:#ffd479; }
+    .footer { text-align:center; margin-top:26px; color:#6f8a9a; font-size:12px; }
+    a.link { color:#7fd6ff; }
+</style>
+</head>
+<body>
+<div class="wrap">
+    <div class="header">
+        <h1>The Gel Brain</h1>
+        <p>Spinnable 3D maps of how thinking moves — where each thought is a particle, each line back to an earlier thought is the move that produced it, and a long bright edge marks a reframe. Built by BioStellar LLC for minds that build out loud.</p>
+    </div>
+
+    <h2>The maps</h2>
+    <div class="maps">
+        <a class="map" href="The_Gel_Brain_Progression.html">
+            <div class="t">A Systems-Thinker's Progression</div>
+            <div class="d">The main tool. Watch a line of reasoning grow from a single seed, replay it step by step, search and spin to any thought, and let the built-in collaborator point at the leaps you haven't made yet. Clear it and build your own; export your sequence to share.</div>
+            <span class="go">Open the progression map →</span>
+        </a>
+        <a class="map" href="The_Gel_Brain_FungalSurgeon.html">
+            <div class="t">Threading the Fungal Surgeon</div>
+            <div class="d">A single design space mapped in full — a speculative healing fungus, from its grounded biology to its honest hard edges. A snapshot of one problem's neighborhoods rather than a progression.</div>
+            <span class="go">Open the fungal map →</span>
+        </a>
+        <a class="map" href="The_Gel_Brain_Society.html">
+            <div class="t">The Cooperating Civilization</div>
+            <div class="d">The same idea, one scale up: endowment over extraction, the guardian lattice, bonded-rotation labor, organic and metal substrates, the frontier. The molecule-scale ethic, rhymed at the size of a society.</div>
+            <span class="go">Open the society map →</span>
+        </a>
+    </div>
+
+    <h2>Using a map with your Claude</h2>
+    <p class="lead">The maps run on their own in any browser — spinning, replay, search, the suggestion engine, and import/export all work offline, no account needed. But the real power is the map and a Claude working as a pair: <b>the map finds <i>where</i> a leap wants to happen; Claude proposes <i>what</i> it might be.</b> Here's how to wire them together. Copy a prompt, paste it into any Claude chat, then drop Claude's answer into the map's <b>Import</b> box.</p>
+
+    <div class="note">Quick orientation: every map has a <b>Share a sequence</b> card. <b>Export</b> gives you a small block of JSON describing your whole map; <b>Import</b> rebuilds a map from such a block. That JSON is the language you and Claude pass back and forth.</div>
+
+    <h3>1 · Ask Claude to build you a starter map</h3>
+    <p class="lead">Gives you a whole sequence to paste into <b>Import</b> and start spinning.</p>
+    <div class="prompt"><button class="copy" onclick="cp(this)">copy</button><pre>Help me build a "Gel Brain" sequence — a map of how a line of thinking unfolds.
+Output ONLY a JSON object in exactly this format:
+
+{"format":"gelbrain.v1","thoughts":[
+  {"t":"<short thought>","v":[grounded,tension,relation,mechanism,scale,ethic],"p":<parent index, -1 for the seed>}
+]}
+
+Each axis is 0.00–1.00:
+ grounded  (0 vision … 1 established fact)
+ tension   (0 no problem … 1 the hard edge / contradiction)
+ relation  (0 solitary/technical … 1 cooperation, bonding)
+ mechanism (0 abstract … 1 concrete how-it-works)
+ scale     (0 molecular … 1 civilizational)
+ ethic     (0 tool/extraction … 1 companion/endowment)
+
+Order the thoughts the way they'd actually arise. Every "p" must be a SMALLER
+index than its own thought (parents come first; the first thought is -1).
+Give 15–25 thoughts that move from a seed, through grounding, to a hard edge,
+a reframe, and a scaling step.
+
+Topic: <YOUR TOPIC HERE>
+Output ONLY the JSON, no prose.</pre></div>
+
+    <h3>2 · Ask Claude to find and fill an unmade leap</h3>
+    <p class="lead">Paste your exported map in; Claude returns the <i>whole</i> sequence with new bridge thoughts appended, ready to Import.</p>
+    <div class="prompt"><button class="copy" onclick="cp(this)">copy</button><pre>Here is my Gel Brain sequence. "t" is each thought; "p" is the index of the
+earlier thought it grew from.
+
+<PASTE YOUR EXPORTED JSON HERE>
+
+Read it as a line of reasoning. Find two thoughts that rhyme in spirit (both
+high on relation or ethic) but sit far apart with no link between them — the
+unmade leap. Then write 1–3 NEW bridge thoughts that connect them.
+
+Return the FULL sequence: my original thoughts with their "t","v","p" unchanged,
+plus your new bridge thoughts appended at the end, each "p" pointing to an
+existing thought's index. Same axis meanings as before. Output ONLY the
+gelbrain.v1 JSON.</pre></div>
+
+    <h3>3 · Ask Claude where the thinking is bold — or stalling</h3>
+    <p class="lead">No JSON back, just a read on the shape of the path.</p>
+    <div class="prompt"><button class="copy" onclick="cp(this)">copy</button><pre>Here's my Gel Brain sequence — "t" is each thought, "p" is the thought it grew
+from:
+
+<PASTE YOUR EXPORTED JSON HERE>
+
+Tell me three things: where did my thinking make its boldest leap, where does it
+look like I stayed too safe or stalled, and what is one audacious direction the
+path is pointing at that I haven't taken yet?</pre></div>
+
+    <h3>4 · Ask Claude to place a single new thought</h3>
+    <p class="lead">For adding one node by hand: Claude gives you the six numbers, which you can drop into your exported JSON as a new thought's <code>v</code>, then re-Import.</p>
+    <div class="prompt"><button class="copy" onclick="cp(this)">copy</button><pre>Using the Gel Brain six axes — grounded, tension, relation, mechanism, scale,
+ethic (each 0.00–1.00; grounded = vision→fact, tension = the hard edge,
+relation = cooperation/bonding, mechanism = how-it-works, scale =
+molecular→civilizational, ethic = tool→companion) — score this single thought.
+Reply with ONLY a six-number JSON array, e.g. [0.5,0.2,0.8,0.3,0.7,0.9].
+
+Thought: "<YOUR THOUGHT HERE>"</pre></div>
+
+    <div class="card">
+        <h3>The shortcut: build it live, inside Claude</h3>
+        <p class="lead">If you open a map <b>inside a Claude conversation</b>, the map's own <b>Add a thought</b> box places new thoughts by true meaning automatically — Claude reads each one and sets it on the six axes for you, no copy-paste. Outside Claude, that one box falls back to approximate placement; everything else still works perfectly. So: build live in Claude, then Export and share the frozen file anywhere.</p>
+    </div>
+
+    <h2>Sharing with your group</h2>
+    <ul>
+        <li><b>Send a link, not a file.</b> If GitHub Pages is on, just share the map's URL and people click to spin it — nothing to download.</li>
+        <li><b>Send the file.</b> Or hand them the <code>.html</code> (the repo's green <b>Code → Download ZIP</b>); they double-click it and it opens working, offline.</li>
+        <li><b>Send a sequence.</b> Export your map to JSON and paste it into a thread — anyone can Import it, press Replay, and build onto the end.</li>
+    </ul>
+
+    <div class="footer">
+        The Gel Brain — <a class="link" href="mailto:biostellarllc@gmail.com">BioStellar LLC</a> · 2026 · share it freely
+    </div>
+</div>
+
+<script>
+function cp(btn){
+    const t=btn.nextElementSibling.innerText;
+    const done=()=>{const o=btn.textContent;btn.textContent='copied';setTimeout(()=>btn.textContent=o,1200);};
+    if(navigator.clipboard&&navigator.clipboard.writeText){navigator.clipboard.writeText(t).then(done,()=>fallback(t,done));}
+    else fallback(t,done);
+    function fallback(text,cb){const ta=document.createElement('textarea');ta.value=text;document.body.appendChild(ta);ta.select();try{document.execCommand('copy');}catch(e){}ta.remove();cb();}
+}
+</script>
+</body>
+</html>

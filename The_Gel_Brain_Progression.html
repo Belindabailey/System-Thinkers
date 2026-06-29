@@ -419,7 +419,9 @@ function buildSuggestions(){
         out.push({i,j,score,shared:(relHi>=ethHi?2:5),overall});
     }
     out.sort((a,b)=>b.score-a.score);
-    return out.slice(0,12);
+    const used=new Set(), picks=[];                                  // diversity: each idea at most once
+    for(const c of out){ if(used.has(c.i)||used.has(c.j)) continue; picks.push(c); used.add(c.i); used.add(c.j); if(picks.length>=12) break; }
+    return picks;
 }
 function showSuggestion(){
     const cap=document.getElementById('sugCap');

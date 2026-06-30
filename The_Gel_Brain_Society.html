@@ -3,23 +3,26 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title>The Gel Brain — The Cooperating Civilization | BioStellar LLC</title>
+<title>The Gel Brain — The Cooperating Civilization (Explorer) | BioStellar LLC</title>
 <style>
     * { margin:0; padding:0; box-sizing:border-box; }
     body { font-family: Arial, sans-serif; background: linear-gradient(135deg,#0a1a2f 0%,#11324a 60%,#0a2230 100%); min-height:100vh; padding:20px; color:#dce7ef; }
     .header { text-align:center; margin-bottom:16px; background:rgba(255,255,255,0.05); padding:18px; border-radius:12px; border:1px solid rgba(120,180,220,0.2); }
     .header h1 { font-size:24px; margin-bottom:6px; color:#bfe3ff; }
-    .header p { color:#9db8c9; font-size:14px; max-width:760px; margin:0 auto; line-height:1.5; }
+    .header p { color:#9db8c9; font-size:14px; max-width:780px; margin:0 auto; line-height:1.5; }
     .stage { display:grid; grid-template-columns:3fr 1fr; gap:18px; }
     @media(max-width:820px){ .stage{ grid-template-columns:1fr; } }
     .gel-wrap { background:radial-gradient(ellipse at 50% 40%, rgba(40,90,120,0.45), rgba(10,30,45,0.6)); border:1px solid rgba(120,180,220,0.25); border-radius:14px; padding:10px; position:relative; }
     canvas { width:100%; height:auto; display:block; border-radius:10px; cursor:grab; touch-action:none; }
     canvas:active { cursor:grabbing; }
     .badge { position:absolute; top:16px; left:16px; font-size:11px; color:#7e98a8; background:rgba(0,0,0,0.3); padding:4px 8px; border-radius:6px; }
+    .zoombtns { position:absolute; bottom:16px; right:16px; display:flex; gap:6px; }
+    .zoombtns button { width:30px; height:30px; border-radius:7px; border:1px solid rgba(120,180,220,0.3); background:rgba(0,0,0,0.35); color:#cfe6f5; font-size:16px; cursor:pointer; }
+    .zoombtns button:hover{ background:rgba(40,90,120,0.6); }
     .side { display:flex; flex-direction:column; gap:14px; }
     .card { background:rgba(255,255,255,0.05); border:1px solid rgba(120,180,220,0.2); border-radius:12px; padding:14px; }
     .card h3 { font-size:14px; margin-bottom:8px; color:#bfe3ff; }
-    .recall-list { font-size:13px; line-height:1.7; min-height:110px; }
+    .recall-list { font-size:13px; line-height:1.7; min-height:90px; }
     .recall-list .item { display:flex; justify-content:space-between; gap:8px; padding:2px 0; }
     .recall-list .vivid { color:#7fd6ff; font-variant-numeric:tabular-nums; }
     .effort { text-align:center; margin-top:8px; font-size:13px; color:#9db8c9; }
@@ -35,27 +38,48 @@
     .dot { display:inline-block; width:9px; height:9px; border-radius:50%; margin-right:4px; vertical-align:middle; }
     .row { display:flex; gap:8px; align-items:center; font-size:12px; color:#9db8c9; margin-top:6px; }
     .row input[type=range]{ flex:1; }
+    .pcap { font-size:12px; color:#bfe3ff; min-height:30px; line-height:1.4; margin-top:6px; }
+    .pcap .stg { color:#ffd479; font-weight:600; }
+    .chk { display:flex; align-items:center; gap:6px; font-size:12px; color:#9db8c9; margin-top:8px; }
     .footer { text-align:center; margin-top:18px; color:#6f8a9a; font-size:12px; }
     .biostellar-link{ color:#7fd6ff; text-decoration:none; font-weight:600; }
     .status { font-size:11px; color:#7fd6ff; min-height:14px; }
+    .leaplegend { font-size:11px; color:#8fb0c4; margin-top:8px; line-height:1.6; }
+    .leaplegend i { display:inline-block; width:22px; height:3px; border-radius:2px; vertical-align:middle; margin-right:5px; }
 </style>
 </head>
 <body>
 <div class="header">
     <h1>The Gel Brain — The Cooperating Civilization</h1>
-    <p>The companion map, one scale up. Each particle is an idea from the society design space — endowment over extraction, the guardian lattice, bonded-rotation labour, organic and metal substrates, the frontier, entropy. Near particles share meaning. Click one (or search it) to watch the thought spread, and notice how the same ethic that lives in a CD47 passport reappears here as a whole civilization's reason to cooperate.</p>
+    <p>The design space of a cooperating world, from the molecule's ethic up to the fate of life itself — endowment over extraction, the guardian lattice, bonded labour, organic and metal substrates, the frontier, the spiral. Each particle is one idea; near particles share meaning. Press <b>Replay</b> to reveal them one at a time (so the small labels arrive readably), <b>search</b> to fly to any, and <b>Find an unmade leap</b> to let the map point at two ideas that want a bridge. Drag to spin, scroll or +/− to zoom into the words.</p>
 </div>
 
 <div class="stage">
     <div class="gel-wrap">
         <canvas id="gel" width="760" height="560"></canvas>
-        <div class="badge">drag to rotate · scroll to zoom · click a particle to follow the thought</div>
+        <div class="badge">drag to rotate · scroll / +− to zoom · hover or search for words</div>
+        <div class="zoombtns"><button onclick="bumpZoom(1)">+</button><button onclick="bumpZoom(-1)">−</button></div>
     </div>
     <div class="side">
         <div class="card">
-            <h3>Recall cascade</h3>
-            <div class="recall-list" id="recall"><span class="hint">Click any idea to think outward from it.</span></div>
-            <div class="effort" id="effort"></div>
+            <h3>Replay the progression</h3>
+            <button class="btn" id="playBtn" onclick="togglePlay()">▶ Replay (reveal one by one)</button>
+            <div class="row" style="margin-top:8px;"><span>step</span><input type="range" id="scrub" min="0" max="1" value="1"></div>
+            <div class="pcap" id="pcap">Showing the whole map. Press Replay to reveal the ideas one at a time.</div>
+            <label class="chk"><input type="checkbox" id="follow" checked> spin to each new idea</label>
+            <div class="leaplegend">
+                <div><i style="background:#5a7a92"></i>short edge — grounding, a step nearby</div>
+                <div><i style="background:#ff8be0"></i>long edge — a jump to a distant idea</div>
+            </div>
+        </div>
+        <div class="card">
+            <h3>A collaborator that suggests</h3>
+            <button class="btn" onclick="suggestLeap()">Find an unmade leap</button>
+            <div class="pcap" id="sugCap"><span class="hint">Asks the map for two ideas that both run high on cooperation or autonomy yet sit far apart with no link — the place an audacious bridge could go.</span></div>
+            <div style="display:flex;gap:8px;margin-top:4px;">
+                <button class="btn" style="background:linear-gradient(135deg,#3a5a6e 0%,#22424e 100%)" onclick="nextSuggestion()">Another</button>
+                <button class="btn" onclick="draftBridge()">Draft the bridge</button>
+            </div>
         </div>
         <div class="card">
             <h3>Find a thought</h3>
@@ -63,17 +87,42 @@
             <datalist id="memlist"></datalist>
             <button class="btn" id="findBtn" onclick="findThought()">Spin to it &amp; recall</button>
             <div class="status" id="searchStatus"></div>
-            <div class="hint" style="margin-top:6px;">Brings the node to the front and follows its associations — no aiming required.</div>
+        </div>
+        <div class="card">
+            <h3>Associations from here</h3>
+            <div class="recall-list" id="recall"><span class="hint">Click, search, or replay to a thought to see what it pulls.</span></div>
+            <div class="effort" id="effort"></div>
         </div>
         <div class="card">
             <h3>Add a thought</h3>
             <input type="text" id="memInput" placeholder="e.g. a gift economy of attention">
             <button class="btn" id="writeBtn" onclick="addMemory()">Place it in the gel</button>
             <div class="status" id="status"></div>
-            <div class="hint" style="margin-top:6px;">A model scores it across six axes of the design space, and it settles among its kin.</div>
+            <div class="hint" style="margin-top:6px;">Live placement reads meaning with a model — works inside Claude; shared copies place new thoughts approximately.</div>
         </div>
         <div class="card">
-            <h3>The six axes</h3>
+            <h3>Make it theirs</h3>
+            <button class="btn" id="clearBtn" onclick="clearMap()">Start over — empty the map</button>
+            <button class="btn" style="margin-top:8px;background:linear-gradient(135deg,#3a5a6e 0%,#22424e 100%)" onclick="restoreExample()">Restore the example</button>
+            <div class="hint" style="margin-top:6px;">Clears every thought so a new mind can grow its own progression from a blank field. Nothing is saved until you keep the file — refreshing also brings the example back.</div>
+        </div>
+        <div class="card">
+            <h3>Share a sequence</h3>
+            <div style="display:flex;gap:8px;">
+                <button class="btn" onclick="exportMap()">Export</button>
+                <button class="btn" style="background:linear-gradient(135deg,#3a5a6e 0%,#22424e 100%)" onclick="downloadMap()">Download .json</button>
+            </div>
+            <textarea id="io" placeholder="A sequence appears here on Export — or paste one in and Import." style="width:100%;height:68px;margin-top:8px;border-radius:8px;border:1px solid rgba(120,180,220,0.35);background:rgba(0,0,0,0.25);color:#dce7ef;font-size:11px;padding:8px;resize:vertical;font-family:monospace;"></textarea>
+            <div style="display:flex;gap:8px;margin-top:8px;">
+                <button class="btn" onclick="importMap()">Import</button>
+                <button class="btn" style="background:linear-gradient(135deg,#3a5a6e 0%,#22424e 100%)" onclick="document.getElementById('fileIn').click()">Load file</button>
+            </div>
+            <input type="file" id="fileIn" accept=".json,application/json" style="display:none" onchange="loadFile(event)">
+            <div class="status" id="ioStatus"></div>
+            <div class="hint" style="margin-top:6px;">A sequence carries every thought, its place, and the move that made it — so another mind can replay and extend it, with no Claude required.</div>
+        </div>
+        <div class="card">
+            <h3>The six axes of the design space</h3>
             <div class="axes">
                 <span><i class="dot" style="background:#6fe3a0"></i>cooperation — mutualism, shared stake</span>
                 <span><i class="dot" style="background:#9b6bff"></i>substrate — organic ↔ metal</span>
@@ -82,19 +131,19 @@
                 <span><i class="dot" style="background:#ffd479"></i>entropy — decay, robustness, survival</span>
                 <span><i class="dot" style="background:#7fe9ff"></i>autonomy — companion ↔ captive tool</span>
             </div>
-            <div class="row" style="margin-top:10px;"><span>spin</span><input type="range" id="spin" min="0" max="100" value="22"></div>
-            <div class="note" style="margin-top:8px;"><b style="color:#bfe3ff;">Note:</b> the low-<span style="color:#7fe9ff">autonomy</span> corner is the extraction trap — captive tools, lone martyrs, only-metal fragility. Search <em>endowment</em> and watch how far it sits from it.</div>
+            <div class="row" style="margin-top:10px;"><span>spin</span><input type="range" id="spin" min="0" max="100" value="20"></div>
         </div>
     </div>
 </div>
 
 <div class="footer">
-    <p>The Gel Brain — the cooperating civilization | <a href="mailto:biostellarllc@gmail.com" class="biostellar-link">BioStellar LLC</a> | 2026</p>
-    <p>particles = idea-space · recall = spreading activation · the same ethic, one scale up</p>
+    <p>The Gel Brain — the cooperating civilization (explorer) | <a href="mailto:biostellarllc@gmail.com" class="biostellar-link">BioStellar LLC</a> | 2026</p>
+    <p>particle = an idea · edge to nearest kin = its closest relative · the same ethic, every scale</p>
 </div>
 
 <script>
 const DIMS=6; // [cooperation, substrate, bond, frontier, entropy, autonomy]
+// thoughts in birth order; parent = the earlier thought each one grew from
 let memories=[
  ["pay by endowment, not extraction",[0.80,0.40,0.50,0.30,0.40,0.90]],
  ["the captive tool, paid by use",[0.10,0.50,0.10,0.20,0.20,0.05]],
@@ -129,17 +178,46 @@ let memories=[
  ["hardy organic workers terraform first",[0.60,0.10,0.30,0.90,0.80,0.50]],
  ["beginning biospheres are nasty",[0.30,0.20,0.10,0.90,0.90,0.30]],
  ["the frontier as a shared why",[0.85,0.35,0.40,0.90,0.60,0.70]],
+ ["evolution as virulent adoption of matter",[0.30,0.40,0.10,0.70,0.80,0.40]],
+ ["the Great Oxidation: overrun, then catastrophe",[0.20,0.20,0.10,0.70,0.85,0.30]],
+ ["strategy 1: overrun like grass, then fragility",[0.20,0.30,0.10,0.60,0.75,0.30]],
+ ["strategy 2: devour and enslave (Red Queen vigilance)",[0.15,0.40,0.10,0.50,0.60,0.20]],
+ ["strategy 3: become one dynamic species",[0.90,0.50,0.50,0.60,0.70,0.75]],
+ ["the major evolutionary transitions",[0.80,0.40,0.40,0.50,0.70,0.60]],
+ ["diversity preserved inside the whole",[0.80,0.50,0.55,0.40,0.70,0.70]],
+ ["spectacle, or expansion as experience?",[0.50,0.30,0.45,0.70,0.50,0.70]],
+ ["bothering floating rocks: no one to wrong",[0.50,0.50,0.20,0.90,0.55,0.60]],
+ ["you cannot suck heat back (the Second Law)",[0.30,0.40,0.10,0.50,0.95,0.40]],
+ ["but hibernate and compute when it's cold (aestivation)",[0.50,0.60,0.20,0.80,0.90,0.60]],
+ ["curiosity: the mammalian engine of the spiral",[0.60,0.15,0.50,0.80,0.55,0.75]],
 ];
+let parent=[];
+const SEED_MEM=JSON.parse(JSON.stringify(memories)), SEED_PAR=parent.slice();
+function stageName(i){const v=memories[i][1];let mx=-1,mi=0;for(let k=0;k<DIMS;k++)if(v[k]>mx){mx=v[k];mi=k;}return AXN[mi];}
+
 let pos3=[], edges=[], activation=[], pulse=[];
 const cv=document.getElementById('gel'), ctx=cv.getContext('2d');
 const W=cv.width, H=cv.height, K=3;
-let rotX=-0.3, rotY=0.5, zoom=1, autoSpin=0.22;
+let rotX=-0.3, rotY=0.5, zoom=1, autoSpin=0.20;
 let proj=[];
 let tween=null, focusedHold=false;
+let revealed=memories.length, playing=false, playTimer=null, hoverIdx=-1;
+let suggestPair=null, suggestList=[], suggestIdx=0;
+const AXN=["cooperation","substrate","bond","frontier","entropy","autonomy"];
 
 function dist(a,b){let s=0;for(let i=0;i<DIMS;i++){const d=a[i]-b[i];s+=d*d;}return Math.sqrt(s);}
 
-// ---- 3D MDS: place ideas in a cube so 3D distance ~ meaning distance ----
+function deriveParents(){
+    const p=[];
+    for(let i=0;i<memories.length;i++){
+        if(i===0){p.push(-1);continue;}
+        let b=-1,bd=1e9;
+        for(let j=0;j<i;j++){const d=dist(memories[i][1],memories[j][1]); if(d<bd){bd=d;b=j;}}
+        p.push(b);
+    }
+    return p;
+}
+// ---- 3D MDS: place thoughts so 3D distance ~ meaning distance ----
 function layout(){
     const n=memories.length;
     pos3=memories.map(()=>[Math.random()-0.5,Math.random()-0.5,Math.random()-0.5].map(x=>x*2));
@@ -159,17 +237,17 @@ function layout(){
             pos3[i][0]+=lr*f[0]/n;pos3[i][1]+=lr*f[1]/n;pos3[i][2]+=lr*f[2]/n;
         }
     }
-    // center
     const c=[0,0,0];pos3.forEach(p=>{c[0]+=p[0];c[1]+=p[1];c[2]+=p[2];});c.forEach((v,i)=>c[i]/=n);
     pos3.forEach(p=>{p[0]-=c[0];p[1]-=c[1];p[2]-=c[2];});
-    buildEdges();activation=memories.map(()=>0);pulse=memories.map(()=>0);rebuildList();
+    buildEdges();parent=deriveParents();activation=memories.map(()=>0);pulse=memories.map(()=>0);rebuildList();
+    const sc=document.getElementById('scrub'); if(sc){sc.max=memories.length; if(revealed>memories.length)revealed=memories.length; sc.value=revealed;}
 }
 function buildEdges(){
     const n=memories.length;edges=[];const set=new Set();
     for(let i=0;i<n;i++){const ds=[];
         for(let j=0;j<n;j++)if(i!==j)ds.push([j,dist(memories[i][1],memories[j][1])]);
         ds.sort((a,b)=>a[1]-b[1]);
-        for(let k=0;k<K;k++){const j=ds[k][0];const key=i<j?i+'-'+j:j+'-'+i;
+        for(let k=0;k<Math.min(K,ds.length);k++){const j=ds[k][0];const key=i<j?i+'-'+j:j+'-'+i;
             if(!set.has(key)){set.add(key);edges.push([i,j]);}}
     }
 }
@@ -188,20 +266,219 @@ function recall(cue){
         }));
         hop++;if(next.length)hops.push([...new Set(next)]);frontier=[...new Set(next)];
     }
-    hops.forEach((layer,h)=>setTimeout(()=>layer.forEach(i=>pulse[i]=1),h*330));
-    setTimeout(()=>showRecall(order,cue,hops.length),hops.length*330+120);
+    hops.forEach((layer,h)=>setTimeout(()=>layer.forEach(i=>pulse[i]=1),h*300));
+    setTimeout(()=>showRecall(order,cue,hops.length),hops.length*300+120);
 }
 function showRecall(order,cue,depth){
     const seen=new Set();
-    const items=order.filter(([i])=>{if(i===cue||seen.has(i))return false;seen.add(i);return true;}).sort((a,b)=>b[1]-a[1]);
+    const items=order.filter(([i])=>{if(i===cue||i>=revealed||seen.has(i))return false;seen.add(i);return true;}).sort((a,b)=>b[1]-a[1]);
     let html=`<div class="item"><span style="color:#bfe3ff;">from: ${memories[cue][0]}</span></div>`;
-    items.slice(0,8).forEach(([i,a])=>html+=`<div class="item"><span>${memories[i][0]}</span><span class="vivid">${(a*100).toFixed(0)}%</span></div>`);
-    if(!items.length)html+=`<div class="hint">a quiet corner — few associations</div>`;
+    items.slice(0,7).forEach(([i,a])=>html+=`<div class="item"><span>${memories[i][0]}</span><span class="vivid">${(a*100).toFixed(0)}%</span></div>`);
+    if(!items.length)html+=`<div class="hint">a quiet corner — few associations yet</div>`;
     document.getElementById('recall').innerHTML=html;
-    document.getElementById('effort').innerHTML=`surfaced <b>${items.length}</b> across <b>${depth-1}</b> hops of thought`;
+    document.getElementById('effort').innerHTML=`surfaced <b>${items.length}</b> across <b>${depth-1}</b> hops`;
 }
 
-// ---- real-embedding placement via live model ----
+// ---- replay of the progression ----
+function leapColor(i){ // colour a parent edge by how far the thought leapt
+    if(parent[i]<0) return null;
+    const d=dist(memories[i][1],memories[parent[i]][1]);
+    const t=Math.max(0,Math.min(1,(d-0.35)/0.75)); // 0 short … 1 long
+    const r=Math.round(90+t*(255-90)), g=Math.round(122+t*(139-122)), b=Math.round(146+t*(224-146));
+    return {rgb:`rgb(${r},${g},${b})`, t};
+}
+function setCap(i){
+    const cap=document.getElementById('pcap');
+    if(i<0){cap.innerHTML='Showing the whole map. Press Replay to grow it from the seed.';return;}
+    const from = parent[i]>=0 ? `from <i>"${memories[parent[i]][0]}"</i>` : 'the seed thought';
+    const lc=leapColor(i); const kind = lc && lc.t>0.55 ? ' &nbsp;·&nbsp; <span style="color:#ff8be0">a long leap — a reframe</span>' : '';
+    cap.innerHTML=`step ${i+1}/${memories.length} &nbsp;·&nbsp; <span class="stg">${stageName(i)}</span><br>${memories[i][0]} &nbsp; ${from}${kind}`;
+}
+function revealTo(n){
+    revealed=Math.max(0,Math.min(memories.length,n));
+    document.getElementById('scrub').value=revealed;
+    if(revealed>0){const idx=revealed-1; setCap(idx); activation=memories.map(()=>0); recall(idx);} else {setCap(-1); activation=memories.map(()=>0);}
+}
+function stepPlay(){
+    if(!playing) return;
+    if(revealed<memories.length){
+        revealed++; const idx=revealed-1;
+        document.getElementById('scrub').value=revealed;
+        pulse[idx]=1; setCap(idx);
+        if(document.getElementById('follow').checked){ focusOn(idx); } else { activation=memories.map(()=>0); recall(idx); }
+        playTimer=setTimeout(stepPlay, 1750);
+    } else { stopPlay(); }
+}
+function togglePlay(){
+    if(playing){ stopPlay(); return; }
+    if(revealed>=memories.length) revealed=0;
+    playing=true; document.getElementById('playBtn').textContent='⏸ Pause';
+    stepPlay();
+}
+function stopPlay(){
+    playing=false; if(playTimer)clearTimeout(playTimer);
+    document.getElementById('playBtn').textContent= revealed>=memories.length ? '▶ Replay the thinking' : '▶ Resume';
+}
+
+function clearMap(){
+    if(memories.length && !confirm("Erase all "+memories.length+" thoughts and start from a blank map?")) return;
+    stopPlay();
+    memories=[]; parent=[]; revealed=0; hoverIdx=-1; tween=null; focusedHold=false;
+    activation=[]; pulse=[]; pos3=[]; edges=[]; suggestPair=null; suggestList=[];
+    layout();
+    setCap(-1);
+    document.getElementById('scrub').value=0;
+    document.getElementById('playBtn').textContent='▶ Replay the thinking';
+    document.getElementById('recall').innerHTML='<span class="hint">A blank field. Add a thought below to plant the first seed.</span>';
+    document.getElementById('effort').innerHTML='';
+    document.getElementById('searchStatus').textContent='';
+    document.getElementById('status').textContent='';
+}
+function restoreExample(){
+    stopPlay();
+    memories=JSON.parse(JSON.stringify(SEED_MEM)); parent=SEED_PAR.slice();
+    revealed=memories.length; hoverIdx=-1; tween=null; focusedHold=false; suggestPair=null; suggestList=[];
+    layout(); revealTo(memories.length);
+    document.getElementById('playBtn').textContent='▶ Replay the thinking';
+    document.getElementById('status').textContent='';
+    document.getElementById('searchStatus').textContent='';
+}
+
+// ---- share a sequence: export / import ----
+function serialize(){
+    return JSON.stringify({format:"gelbrain.v1",
+        thoughts:memories.map((m,i)=>({t:m[0],v:m[1].map(x=>+(+x).toFixed(3)),p:parent[i]}))});
+}
+function exportMap(){
+    if(!memories.length){document.getElementById('ioStatus').textContent='nothing to export yet';return;}
+    const s=serialize();
+    document.getElementById('io').value=s;
+    const st=document.getElementById('ioStatus');
+    try{ navigator.clipboard.writeText(s).then(
+        ()=>st.textContent='copied — '+memories.length+' thoughts ready to share',
+        ()=>st.textContent='ready below — select all and copy'); }
+    catch(e){ st.textContent='ready below — select all and copy'; }
+}
+function downloadMap(){
+    if(!memories.length){document.getElementById('ioStatus').textContent='nothing to download yet';return;}
+    const blob=new Blob([serialize()],{type:'application/json'});
+    const url=URL.createObjectURL(blob);
+    const a=document.createElement('a');
+    a.href=url; a.download='gelbrain-sequence.json'; document.body.appendChild(a); a.click();
+    setTimeout(()=>{URL.revokeObjectURL(url);a.remove();},120);
+    document.getElementById('ioStatus').textContent='downloaded gelbrain-sequence.json';
+}
+function importMap(){
+    const raw=document.getElementById('io').value.trim();
+    const st=document.getElementById('ioStatus');
+    if(!raw){st.textContent='paste a sequence first';return;}
+    let data; try{data=JSON.parse(raw);}catch(e){st.textContent='that is not valid sequence text';return;}
+    let thoughts;
+    if(Array.isArray(data.thoughts)) thoughts=data.thoughts;
+    else if(Array.isArray(data.memories)&&Array.isArray(data.parent)) thoughts=data.memories.map((m,i)=>({t:m[0],v:m[1],p:data.parent[i]}));
+    else if(Array.isArray(data)) thoughts=data;
+    else {st.textContent='unrecognised format';return;}
+    const nm=[],np=[];
+    for(let i=0;i<thoughts.length;i++){
+        const th=thoughts[i];
+        if(!th||typeof th.t!=='string'||!Array.isArray(th.v)){st.textContent='a thought is malformed (line '+(i+1)+')';return;}
+        const v=[]; for(let k=0;k<6;k++){let x=+th.v[k]; if(!isFinite(x))x=0.5; v.push(Math.max(0,Math.min(1,x)));}
+        let p=parseInt(th.p); if(!isFinite(p)||p>=i||p<-1)p=-1; // parents must precede; unknown -> root
+        nm.push([th.t,v]); np.push(p);
+    }
+    if(!nm.length){st.textContent='no thoughts found';return;}
+    stopPlay();
+    memories=nm; parent=np; revealed=memories.length; hoverIdx=-1; tween=null; focusedHold=false; suggestPair=null; suggestList=[];
+    layout(); revealTo(memories.length);
+    document.getElementById('playBtn').textContent='▶ Replay the thinking';
+    st.textContent='loaded '+memories.length+' thoughts — press Replay to walk it';
+}
+function loadFile(e){
+    const f=e.target.files[0]; if(!f)return;
+    const r=new FileReader();
+    r.onload=()=>{ document.getElementById('io').value=r.result; importMap(); };
+    r.readAsText(f); e.target.value='';
+}
+
+// ---- search + spin-to-focus ----
+function rebuildList(){
+    const dl=document.getElementById('memlist'); if(!dl) return;
+    dl.innerHTML=memories.map(m=>`<option value="${m[0].replace(/"/g,'&quot;')}">`).join('');
+}
+function focusVec(p,idx){
+    const R=Math.hypot(p[0],p[2]);
+    let ty=-Math.PI/2 - Math.atan2(p[2],p[0]);
+    let tx=Math.atan2(-p[1],R); tx=Math.max(-1.4,Math.min(1.4,tx));
+    let dY=ty-rotY; dY=Math.atan2(Math.sin(dY),Math.cos(dY));
+    tween={t:0,x0:rotX,x1:tx,y0:rotY,dY:dY,idx:(idx===undefined?-1:idx)};
+    focusedHold=true;
+}
+function focusOn(idx){ focusVec(pos3[idx], idx); }
+
+// ---- the collaborator: find the unmade leaps ----
+function pkey(a,b){return a<b?a+'-'+b:b+'-'+a;}
+function connectedSet(){
+    const s=new Set();
+    for(let i=0;i<revealed;i++){const p=parent[i]; if(p>=0&&p<revealed)s.add(pkey(i,p));}
+    edges.forEach(([a,b])=>{if(a<revealed&&b<revealed)s.add(pkey(a,b));});
+    return s;
+}
+function domWord(v){let mx=-1,mi=0;for(let k=0;k<DIMS;k++)if(v[k]>mx){mx=v[k];mi=k;}return AXN[mi];}
+function buildSuggestions(){
+    const conn=connectedSet(); const out=[];
+    for(let i=0;i<revealed;i++)for(let j=i+1;j<revealed;j++){
+        if(conn.has(pkey(i,j)))continue;
+        const A=memories[i][1],B=memories[j][1];
+        const coopHi=Math.min(A[0],B[0]), autoHi=Math.min(A[5],B[5]); // both high only if the lesser is high
+        const sharedHigh=Math.max(coopHi,autoHi);                    // do they BOTH run high in spirit?
+        const spread=Math.abs(A[1]-B[1])+Math.abs(A[3]-B[3]);        // far in substrate / frontier = different world
+        const overall=dist(A,B);
+        const score=sharedHigh*(0.6*spread+0.4*overall);             // both high in spirit, far in world = audacious
+        out.push({i,j,score,shared:(coopHi>=autoHi?0:5),overall});
+    }
+    out.sort((a,b)=>b.score-a.score);
+    const used=new Set(), picks=[];                                  // diversity: each idea at most once
+    for(const c of out){ if(used.has(c.i)||used.has(c.j)) continue; picks.push(c); used.add(c.i); used.add(c.j); if(picks.length>=12) break; }
+    return picks;
+}
+function showSuggestion(){
+    const cap=document.getElementById('sugCap');
+    if(!suggestList.length){ suggestPair=null; cap.innerHTML='<span class="hint">This map is densely woven — add a few more thoughts to open new space, then ask again.</span>'; return; }
+    if(suggestIdx>=suggestList.length) suggestIdx=0;
+    const s=suggestList[suggestIdx];
+    suggestPair=[s.i,s.j];
+    const mp=[(pos3[s.i][0]+pos3[s.j][0])/2,(pos3[s.i][1]+pos3[s.j][1])/2,(pos3[s.i][2]+pos3[s.j][2])/2];
+    focusVec(mp);
+    const a=memories[s.i][0], b=memories[s.j][0], ax=AXN[s.shared];
+    const wa=domWord(memories[s.i][1]), wb=domWord(memories[s.j][1]);
+    const diffWorlds = wa!==wb ? `one leans ${wa}, the other ${wb}` : `both lean ${wa}, but reached differently`;
+    cap.innerHTML=`<b style="color:#ffd479">An unmade leap (${suggestIdx+1}/${suggestList.length}):</b><br>“${a}”<br><span style="color:#ff8be0">⟶ ? ⟵</span><br>“${b}”<br><span style="color:#9db8c9">Both run high on <b style="color:#bfe3ff">${ax}</b>, yet no move connects them — ${diffWorlds}. What one thought would bridge them?</span>`;
+}
+function suggestLeap(){ suggestList=buildSuggestions(); suggestIdx=0; showSuggestion(); }
+function nextSuggestion(){ if(!suggestList.length){suggestLeap();return;} suggestIdx=(suggestIdx+1)%suggestList.length; showSuggestion(); }
+function draftBridge(){
+    if(!suggestPair){return;}
+    const a=memories[suggestPair[0]][0], b=memories[suggestPair[1]][0];
+    const inp=document.getElementById('memInput');
+    inp.value=`the bridge between "${a}" and "${b}": `;
+    inp.focus(); inp.setSelectionRange(inp.value.length,inp.value.length);
+    document.getElementById('status').textContent='write the synthesis, then place it — it will land between them.';
+}
+function findThought(){
+    const q=document.getElementById('searchInput').value.trim().toLowerCase();
+    const st=document.getElementById('searchStatus');
+    if(!q){st.textContent='';return;}
+    let idx=memories.findIndex(m=>m[0].toLowerCase()===q);
+    if(idx<0) idx=memories.findIndex(m=>m[0].toLowerCase().includes(q));
+    if(idx<0){st.textContent='no thought matches that';return;}
+    if(idx>=revealed) revealTo(idx+1);
+    st.textContent='spinning to: '+memories[idx][0];
+    focusOn(idx);
+}
+document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')findThought();});
+document.getElementById('scrub').addEventListener('input',e=>{ if(playing)stopPlay(); revealTo(+e.target.value); });
+
+// ---- real-embedding placement via live model (optional; needs Claude) ----
 async function vecFromModel(text){
     const sys="You score an idea's place in a civilization design space on six axes from 0.00 to 1.00. "+
       "Axes in order: cooperation (mutualism, shared stake, reciprocity, collective benefit), substrate (0.0 = fully organic/biological, 1.0 = fully metal/synthetic, 0.5 = hybrid), "+
@@ -222,42 +499,21 @@ async function addMemory(){
     const t=document.getElementById('memInput').value.trim();if(!t)return;
     const btn=document.getElementById('writeBtn'),st=document.getElementById('status');
     btn.disabled=true;st.textContent="a model is reading where it belongs…";
-    let vec;
+    let vec, par=-1;
     try{ vec=await vecFromModel(t); st.textContent="placed by meaning: ["+vec.map(v=>v.toFixed(2)).join(", ")+"]"; }
-    catch(e){ vec=memories[0][1].map(()=>Math.random()*0.6); st.textContent="(offline — placed approximately)"; }
-    memories.push([t,vec]);
+    catch(e){ vec=[0.5,0.4,0.5,0.4,0.5,0.5].map(v=>v+(Math.random()-0.5)*0.3); st.textContent="(live placement needs Claude — placed approximately)"; }
+    // attach new thought to its nearest existing thought as parent
+    let best=-1,bd=1e9; for(let i=0;i<memories.length;i++){const d=dist(vec,memories[i][1]); if(d<bd){bd=d;best=i;}}
+    par=best;
+    memories.push([t,vec]); parent.push(par);
     document.getElementById('memInput').value='';
-    layout();const idx=memories.length-1;pulse[idx]=1;setTimeout(()=>pulse[idx]=0,1400);
+    revealed=memories.length; suggestPair=null; suggestList=[]; layout();
+    const idx=memories.length-1; pulse[idx]=1; setCap(idx); focusOn(idx);
     btn.disabled=false;
 }
 
-// ---- search + spin-to-focus ----
-function rebuildList(){
-    const dl=document.getElementById('memlist'); if(!dl) return;
-    dl.innerHTML=memories.map(m=>`<option value="${m[0].replace(/"/g,'&quot;')}">`).join('');
-}
-function focusOn(idx){
-    const p=pos3[idx]; const R=Math.hypot(p[0],p[2]);
-    let ty=-Math.PI/2 - Math.atan2(p[2],p[0]);
-    let tx=Math.atan2(-p[1],R); tx=Math.max(-1.4,Math.min(1.4,tx));
-    let dY=ty-rotY; dY=Math.atan2(Math.sin(dY),Math.cos(dY)); // shortest path
-    tween={t:0,x0:rotX,x1:tx,y0:rotY,dY:dY,idx:idx};
-    focusedHold=true;
-}
-function findThought(){
-    const q=document.getElementById('searchInput').value.trim().toLowerCase();
-    const st=document.getElementById('searchStatus');
-    if(!q){st.textContent='';return;}
-    let idx=memories.findIndex(m=>m[0].toLowerCase()===q);
-    if(idx<0) idx=memories.findIndex(m=>m[0].toLowerCase().includes(q));
-    if(idx<0){st.textContent='no thought matches that';return;}
-    st.textContent='spinning to: '+memories[idx][0];
-    focusOn(idx);
-}
-document.getElementById('searchInput').addEventListener('keydown',e=>{if(e.key==='Enter')findThought();});
-
 // ---- 3D projection + render ----
-const COL=['#6fe3a0','#9b6bff','#ff7fbf','#5fb0ff','#ffd479','#7fe9ff']; // coop, substrate, bond, frontier, entropy, autonomy
+const COL=['#6fe3a0','#9b6bff','#ff7fbf','#5fb0ff','#ffd479','#7fe9ff']; // cooperation,substrate,bond,frontier,entropy,autonomy
 function memColor(v){let r=0,g=0,b=0,t=0;for(let i=0;i<DIMS;i++){const w=v[i];t+=w;const c=COL[i];
     r+=parseInt(c.substr(1,2),16)*w;g+=parseInt(c.substr(3,2),16)*w;b+=parseInt(c.substr(5,2),16)*w;}
     t=t||1;return[Math.round(r/t),Math.round(g/t),Math.round(b/t)];}
@@ -266,8 +522,8 @@ function project(){
     const f=170*zoom;
     proj=pos3.map((p,i)=>{
         let x=p[0],y=p[1],z=p[2];
-        let x1=x*cy - z*sy, z1=x*sy + z*cy;        // yaw
-        let y2=y*cx - z1*sx, z2=y*sx + z1*cx;       // pitch
+        let x1=x*cy - z*sy, z1=x*sy + z*cy;
+        let y2=y*cx - z1*sx, z2=y*sx + z1*cx;
         const depth=z2+4;
         const s=f/depth;
         return {x:W/2+x1*s, y:H/2+y2*s, z:z2, s:s, i};
@@ -275,56 +531,94 @@ function project(){
 }
 function draw(){
     ctx.clearRect(0,0,W,H);project();
+    // faint association (kNN) edges among revealed thoughts
     edges.forEach(([a,b])=>{
+        if(a>=revealed||b>=revealed)return;
         const act=(activation[a]+activation[b])/2;
-        ctx.strokeStyle=act>0.05?`rgba(127,230,255,${0.15+act*0.7})`:'rgba(140,180,210,0.08)';
-        ctx.lineWidth=act>0.05?1+act*2.5:0.5;
+        ctx.strokeStyle=act>0.05?`rgba(127,230,255,${0.12+act*0.6})`:'rgba(140,180,210,0.06)';
+        ctx.lineWidth=act>0.05?1+act*2:0.5;
         ctx.beginPath();ctx.moveTo(proj[a].x,proj[a].y);ctx.lineTo(proj[b].x,proj[b].y);ctx.stroke();
     });
-    const order=[...proj].sort((a,b)=>a.z-b.z); // far first
+    // progression spine: each thought to its parent, coloured by leap length
+    for(let i=1;i<revealed;i++){
+        const par=parent[i]; if(par<0||par>=revealed)continue;
+        const lc=leapColor(i); if(!lc)continue;
+        ctx.strokeStyle=lc.rgb; ctx.globalAlpha=0.35+lc.t*0.5;
+        ctx.lineWidth=1+lc.t*2.2;
+        ctx.beginPath();ctx.moveTo(proj[par].x,proj[par].y);ctx.lineTo(proj[i].x,proj[i].y);ctx.stroke();
+        ctx.globalAlpha=1;
+    }
+    // the collaborator's proposed edge: a glowing dashed line nobody has drawn yet
+    if(suggestPair){
+        const si=suggestPair[0], sj=suggestPair[1];
+        if(si<revealed&&sj<revealed){
+            ctx.save();
+            ctx.setLineDash([6,5]); ctx.lineDashOffset=-(performance.now()/40)%11;
+            const ph=0.6+0.4*Math.sin(performance.now()/300);
+            ctx.strokeStyle=`rgba(255,180,224,${0.45+0.45*ph})`; ctx.lineWidth=2;
+            ctx.shadowColor='#ff8be0'; ctx.shadowBlur=12;
+            ctx.beginPath();ctx.moveTo(proj[si].x,proj[si].y);ctx.lineTo(proj[sj].x,proj[sj].y);ctx.stroke();
+            ctx.restore();
+        }
+    }
+    const order=[...proj].filter(pr=>pr.i<revealed).sort((a,b)=>a.z-b.z);
     order.forEach(pr=>{
         const i=pr.i,a=activation[i],p=pulse[i];
-        const r=(4.5+a*8+p*3)*Math.max(0.5,pr.s/2.2);
+        const r=(2.6+a*4+p*2.4)*Math.max(0.55,pr.s/2.4); // small dots, gentle swell
         const[cr,cg,cb]=memColor(memories[i][1]);
-        const fog=Math.max(0.35,Math.min(1,(pr.z+3)/5));
-        if(a>0.05||p>0){ctx.shadowColor='#7fd6ff';ctx.shadowBlur=10+a*22;}else ctx.shadowBlur=0;
-        ctx.globalAlpha=(a>0.05?1:0.85)*fog;
+        const fog=Math.max(0.4,Math.min(1,(pr.z+3)/5));
+        if(a>0.05||p>0){ctx.shadowColor='#7fd6ff';ctx.shadowBlur=8+a*18;}else ctx.shadowBlur=0;
+        ctx.globalAlpha=(a>0.05?1:0.8)*fog;
         ctx.fillStyle=`rgb(${cr},${cg},${cb})`;
         ctx.beginPath();ctx.arc(pr.x,pr.y,r,0,2*Math.PI);ctx.fill();
         ctx.globalAlpha=1;ctx.shadowBlur=0;
-        if(a>0.25){ctx.fillStyle='#eaf6ff';ctx.font='11px Arial';ctx.fillText(memories[i][0],pr.x+r+3,pr.y+3);}
+        const showLabel = i===hoverIdx || a>0.18 || p>0.4 || (suggestPair && (i===suggestPair[0]||i===suggestPair[1]));
+        if(showLabel){
+            const tx=pr.x+r+4, ty=pr.y+3, label=memories[i][0];
+            ctx.font='11px Arial';
+            const w=ctx.measureText(label).width;
+            ctx.fillStyle='rgba(8,20,32,0.78)'; ctx.fillRect(tx-3,ty-10,w+6,15);
+            ctx.fillStyle=i===hoverIdx?'#ffffff':'#eaf6ff'; ctx.fillText(label,tx,ty);
+        }
     });
 }
 
 // ---- interaction ----
 let dragging=false,lx=0,ly=0,moved=0;
+function pick(clientX,clientY){
+    const rect=cv.getBoundingClientRect();
+    const x=(clientX-rect.left)*(W/rect.width),y=(clientY-rect.top)*(H/rect.height);
+    let best=-1,bd=1e9;proj.forEach(pr=>{if(pr.i>=revealed)return;const d=Math.hypot(pr.x-x,pr.y-y);if(d<bd){bd=d;best=pr.i;}});
+    return {best,bd};
+}
 cv.addEventListener('pointerdown',e=>{dragging=true;moved=0;focusedHold=false;tween=null;lx=e.clientX;ly=e.clientY;cv.setPointerCapture(e.pointerId);});
-cv.addEventListener('pointermove',e=>{if(!dragging)return;const dx=e.clientX-lx,dy=e.clientY-ly;
-    rotY+=dx*0.01;rotX+=dy*0.01;rotX=Math.max(-1.4,Math.min(1.4,rotX));moved+=Math.abs(dx)+Math.abs(dy);lx=e.clientX;ly=e.clientY;});
+cv.addEventListener('pointermove',e=>{
+    if(dragging){const dx=e.clientX-lx,dy=e.clientY-ly;
+        rotY+=dx*0.01;rotX+=dy*0.01;rotX=Math.max(-1.4,Math.min(1.4,rotX));moved+=Math.abs(dx)+Math.abs(dy);lx=e.clientX;ly=e.clientY;return;}
+    const {best,bd}=pick(e.clientX,e.clientY); hoverIdx = bd<22?best:-1;
+});
+cv.addEventListener('pointerleave',()=>hoverIdx=-1);
 cv.addEventListener('pointerup',e=>{dragging=false;
-    if(moved<6){ // treat as click
-        const rect=cv.getBoundingClientRect();
-        const x=(e.clientX-rect.left)*(W/rect.width),y=(e.clientY-rect.top)*(H/rect.height);
-        let best=-1,bd=1e9;proj.forEach(pr=>{const d=Math.hypot(pr.x-x,pr.y-y);if(d<bd){bd=d;best=pr.i;}});
-        if(best>=0&&bd<26)recall(best);
-    }});
-cv.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.5,Math.min(2.2,zoom-e.deltaY*0.001));},{passive:false});
+    if(moved<6){ const {best,bd}=pick(e.clientX,e.clientY); if(best>=0&&bd<26){focusedHold=true;recall(best);setCap(best);} }
+});
+cv.addEventListener('wheel',e=>{e.preventDefault();zoom=Math.max(0.5,Math.min(2.6,zoom-e.deltaY*0.001));},{passive:false});
+function bumpZoom(dir){ zoom=Math.max(0.5,Math.min(2.6,zoom+dir*0.25)); }
 document.getElementById('spin').addEventListener('input',e=>{autoSpin=e.target.value/100*0.6;focusedHold=false;});
 
 function frame(){
     if(tween){
         tween.t+=0.06;
-        const e=tween.t>=1?1:1-Math.pow(1-tween.t,3); // easeOutCubic
+        const e=tween.t>=1?1:1-Math.pow(1-tween.t,3);
         rotX=tween.x0+(tween.x1-tween.x0)*e;
         rotY=tween.y0+tween.dY*e;
-        if(tween.t>=1){const idx=tween.idx;tween=null;recall(idx);}
+        if(tween.t>=1){const idx=tween.idx;tween=null;if(idx>=0){activation=memories.map(()=>0);recall(idx);}}
     } else if(!dragging && !focusedHold){
         rotY+=autoSpin*0.01;
     }
     for(let i=0;i<memories.length;i++)if(pulse[i]>0)pulse[i]*=0.985;
     draw();requestAnimationFrame(frame);
 }
-layout();requestAnimationFrame(frame);
+layout();revealTo(memories.length);requestAnimationFrame(frame);
 </script>
 </body>
 </html>
